@@ -1,442 +1,530 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ config('app.name', 'Sembako App') }}</title>
+    <title>
+        @yield('title', 'Dashboard') - Sembako App
+    </title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    @stack('styles')
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f6f8;
+            color: #333;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+        .app-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 240px;
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.25s ease;
+        }
+
+        .sidebar-brand {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .brand-text {
+            line-height: 1.2;
+        }
+
+        .brand-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .brand-subtitle {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+
+        .sidebar-menu {
+            padding: 18px 12px;
+        }
+
+        .menu-section {
+            margin-bottom: 22px;
+        }
+
+        .menu-title {
+            padding: 0 12px;
+            margin-bottom: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-height: 42px;
+            padding: 9px 12px;
+            margin-bottom: 3px;
+            border-radius: 8px;
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+
+        .menu-link:hover {
+            background: #f3f6ff;
+            color: #2563eb;
+        }
+
+        .menu-link.active {
+            background: #eaf1ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        /* =========================
+           USER AREA
+        ========================= */
+        .sidebar-user {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 12px;
+            background: #ffffff;
+            border-top: 1px solid #eeeeee;
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #eaf1ff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #111827;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .logout-btn {
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 6px;
+        }
+
+        .logout-btn:hover {
+            color: #dc2626;
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
+        .app-main {
+            margin-left: 240px;
+            min-height: 100vh;
+            width: calc(100% - 240px);
+        }
+
+        .app-header {
+            height: 64px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            border: none;
+            background: transparent;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .app-content {
+            padding: 24px 28px;
+        }
+
+        /* =========================
+           OVERLAY
+        ========================= */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 999;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+        @media (max-width: 991px) {
+
+            .app-sidebar {
+                transform: translateX(-100%);
+                width: 250px;
+            }
+
+            .app-sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.open {
+                display: block;
+            }
+
+            .app-main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .app-header {
+                padding: 0 16px;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .app-content {
+                padding: 16px;
+            }
+        }
+    </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body>
 
+<div
+    x-data="{ sidebarOpen: false }"
+    @keydown.escape.window="sidebarOpen = false"
+>
+
+    {{-- OVERLAY MOBILE --}}
     <div
-        x-data="{ sidebarOpen: false }"
-        class="min-h-screen"
+        class="sidebar-overlay"
+        :class="{ 'open': sidebarOpen }"
+        @click="sidebarOpen = false"
+    ></div>
+
+
+    {{-- SIDEBAR --}}
+    <aside
+        class="app-sidebar"
+        :class="{ 'open': sidebarOpen }"
     >
 
-        {{-- Mobile Overlay --}}
-        <div
-            x-show="sidebarOpen"
-            x-cloak
-            @click="sidebarOpen = false"
-            class="fixed inset-0 z-40 bg-slate-900/40 lg:hidden"
-        ></div>
+        {{-- BRAND --}}
+        <div class="sidebar-brand">
 
-
-        {{-- Sidebar --}}
-        <aside
-            class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200
-                   transform transition-transform duration-200 lg:translate-x-0"
-            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-        >
-
-            {{-- Logo --}}
-            <div class="h-20 px-6 flex items-center border-b border-slate-100">
-
-                <div class="flex items-center gap-3">
-
-                    <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-
-                        {{-- Store Icon --}}
-                        <svg
-                            class="w-6 h-6 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M3 10l2-6h14l2 6M5 10v10h14V10M3 10h18M9 20v-6h6v6"
-                            />
-                        </svg>
-
-                    </div>
-
-                    <div>
-                        <h1 class="font-bold text-slate-800 text-lg leading-tight">
-                            Sembako App
-                        </h1>
-
-                        <p class="text-xs text-slate-400">
-                            Manajemen Kebutuhan Warung
-                        </p>
-                    </div>
-
-                </div>
-
+            <div class="brand-icon">
+                🏪
             </div>
 
-
-            {{-- Navigation --}}
-            <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-160px)]">
-
-                {{-- Dashboard --}}
-                <a
-                    href="{{ route('admin.dashboard') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl
-                           {{ request()->routeIs('admin.dashboard')
-                                ? 'bg-blue-50 text-blue-600'
-                                : 'text-slate-600 hover:bg-slate-50' }}"
-                >
-
-                    <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M3 13h8V3H3v10zm10 8h8V11h-8v10zM3 21h8v-6H3v6zm10-12h8V3h-8v6z"
-                        />
-                    </svg>
-
-                    <span class="text-sm font-medium">
-                        Dashboard
-                    </span>
-
-                </a>
-
-
-                {{-- Kebutuhan Warung --}}
-                <div class="pt-4 pb-2 px-4">
-
-                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                        Kebutuhan Warung
-                    </p>
-
+            <div class="brand-text">
+                <div class="brand-title">
+                    Sembako App
                 </div>
 
-
-                {{-- Catat Kebutuhan --}}
-                <a
-                    href="{{ route('orders.create') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl
-                           {{ request()->routeIs('orders.create')
-                                ? 'bg-blue-50 text-blue-600'
-                                : 'text-slate-600 hover:bg-slate-50' }}"
-                >
-
-                    <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a3 3 0 016 0M9 5h6M9 12h6M9 16h4"
-                        />
-                    </svg>
-
-                    <span class="text-sm font-medium">
-                        Catat Kebutuhan
-                    </span>
-
-                </a>
-
-
-                {{-- Daftar Kebutuhan --}}
-                <a
-                    href="{{ route('orders.index') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl
-                           {{ request()->routeIs('orders.index')
-                                ? 'bg-blue-50 text-blue-600'
-                                : 'text-slate-600 hover:bg-slate-50' }}"
-                >
-
-                    <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"
-                        />
-                    </svg>
-
-                    <span class="text-sm font-medium">
-                        Daftar Kebutuhan
-                    </span>
-
-                </a>
-
-
-                {{-- Data --}}
-                <div class="pt-4 pb-2 px-4">
-
-                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                        Data Master
-                    </p>
-
+                <div class="brand-subtitle">
+                    Manajemen Kebutuhan Warung
                 </div>
-
-
-                {{-- Warung --}}
-                <a
-                    href="#"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50"
-                >
-
-                    <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M15 9h.01M9 12h.01M15 12h.01"
-                        />
-                    </svg>
-
-                    <span class="text-sm font-medium">
-                        Data Warung
-                    </span>
-
-                </a>
-
-
-                {{-- Produk --}}
-                <a
-                    href="#"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50"
-                >
-
-                    <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M20 7l-8-4-8 4m16 0v10l-8 4-8-4V7m16 0l-8 4m-8-4l8 4m0 0v10"
-                        />
-                    </svg>
-
-                    <span class="text-sm font-medium">
-                        Data Produk
-                    </span>
-
-                </a>
-
-            </nav>
-
-
-            {{-- User --}}
-            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-100 bg-white">
-
-                <div class="flex items-center gap-3">
-
-                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-
-                        <svg
-                            class="w-5 h-5 text-slate-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15 19a6 6 0 00-12 0M9 13a4 4 0 100-8 4 4 0 000 8zm6-6h6m-3-3v6"
-                            />
-                        </svg>
-
-                    </div>
-
-                    <div class="min-w-0 flex-1">
-
-                        <p class="text-sm font-semibold text-slate-700 truncate">
-                            {{ auth()->user()->name }}
-                        </p>
-
-                        <p class="text-xs text-slate-400 truncate">
-                            {{ auth()->user()->email }}
-                        </p>
-
-                    </div>
-
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-
-                        <button
-                            type="submit"
-                            title="Logout"
-                            class="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50"
-                        >
-                            <svg
-                                class="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1"
-                                />
-                            </svg>
-                        </button>
-
-                    </form>
-
-                </div>
-
             </div>
-
-        </aside>
-
-
-        {{-- Main --}}
-        <div class="lg:pl-64 min-h-screen">
-
-            {{-- Topbar --}}
-            <header class="h-20 bg-white border-b border-slate-200 sticky top-0 z-30">
-
-                <div class="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-
-                    {{-- Mobile Button --}}
-                    <button
-                        @click="sidebarOpen = true"
-                        class="lg:hidden p-2 rounded-lg hover:bg-slate-100"
-                    >
-                        <svg
-                            class="w-6 h-6 text-slate-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16"
-                            />
-                        </svg>
-                    </button>
-
-
-                    {{-- Page Header --}}
-                    <div class="hidden lg:block">
-
-                        <p class="text-sm text-slate-400">
-                            {{ now()->translatedFormat('l, d F Y') }}
-                        </p>
-
-                    </div>
-
-
-                    {{-- User --}}
-                    <div class="flex items-center gap-4 ml-auto">
-
-                        {{-- Notification --}}
-                        <button
-                            class="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100"
-                        >
-
-                            <svg
-                                class="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 17h5l-1.5-2V10a6.5 6.5 0 00-13 0v5L4 17h5m6 0a3 3 0 01-6 0"
-                                />
-                            </svg>
-
-                        </button>
-
-                        <div class="h-7 w-px bg-slate-200"></div>
-
-                        <div class="flex items-center gap-3">
-
-                            <div class="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center">
-
-                                <svg
-                                    class="w-5 h-5 text-blue-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M20 21a8 8 0 10-16 0m8-12a4 4 0 100-8 4 4 0 000 8z"
-                                    />
-                                </svg>
-
-                            </div>
-
-                            <div class="hidden sm:block">
-
-                                <p class="text-sm font-semibold text-slate-700">
-                                    {{ auth()->user()->name }}
-                                </p>
-
-                                <p class="text-xs text-slate-400">
-                                    Administrator
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </header>
-
-
-            {{-- Page Content --}}
-            <main>
-
-                @isset($header)
-                    <div class="bg-white border-b border-slate-200">
-
-                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                            {{ $header }}
-                        </div>
-
-                    </div>
-                @endisset
-
-                {{ $slot }}
-
-            </main>
 
         </div>
 
-    </div>
+
+        {{-- MENU --}}
+        <div class="sidebar-menu">
+
+            {{-- DASHBOARD --}}
+            <div class="menu-section">
+
+                <a
+                    href="{{ route('dashboard') }}"
+                    class="menu-link {{ request()->routeIs('admin.dashboard', 'petugas.dashboard', 'warung.dashboard') ? 'active' : '' }}"
+                    @click="sidebarOpen = false"
+                >
+                    <span class="menu-icon">▣</span>
+                    <span>Dashboard</span>
+                </a>
+
+            </div>
+
+
+            {{-- KEBUTUHAN WARUNG --}}
+            @if(auth()->user()->isAdmin() || auth()->user()->isPetugas())
+
+                <div class="menu-section">
+
+                    <div class="menu-title">
+                        Kebutuhan Warung
+                    </div>
+
+                    <a
+                        href="{{ route('orders.create') }}"
+                        class="menu-link {{ request()->routeIs('orders.create') ? 'active' : '' }}"
+                        @click="sidebarOpen = false"
+                    >
+                        <span class="menu-icon">▣</span>
+                        <span>Catat Kebutuhan</span>
+                    </a>
+
+                    <a
+                        href="{{ route('orders.index') }}"
+                        class="menu-link {{ request()->routeIs('orders.index', 'orders.show') ? 'active' : '' }}"
+                        @click="sidebarOpen = false"
+                    >
+                        <span class="menu-icon">☷</span>
+                        <span>Daftar Kebutuhan</span>
+                    </a>
+
+                </div>
+
+            @endif
+
+
+            {{-- DATA MASTER --}}
+            @if(auth()->user()->isAdmin())
+
+                <div class="menu-section">
+
+                    <div class="menu-title">
+                        Data Master
+                    </div>
+
+                    <a
+                        href="#"
+                        class="menu-link"
+                    >
+                        <span class="menu-icon">♜</span>
+                        <span>Data Warung</span>
+                    </a>
+
+                    <a
+                        href="#"
+                        class="menu-link"
+                    >
+                        <span class="menu-icon">▤</span>
+                        <span>Data Produk</span>
+                    </a>
+
+                    <a
+                        href="#"
+                        class="menu-link"
+                    >
+                        <span class="menu-icon">▦</span>
+                        <span>Kategori Produk</span>
+                    </a>
+
+                </div>
+
+            @endif
+
+        </div>
+
+
+        {{-- USER --}}
+        <div class="sidebar-user">
+
+            <div class="user-box">
+
+                <div class="user-avatar">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </div>
+
+                <div class="user-info">
+
+                    <div class="user-name">
+                        {{ auth()->user()->name }}
+                    </div>
+
+                    <div class="user-role">
+                        {{ auth()->user()->role->value }}
+                    </div>
+
+                </div>
+
+                <form
+                    method="POST"
+                    action="{{ route('logout') }}"
+                >
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="logout-btn"
+                        title="Logout"
+                    >
+                        ↪
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    {{-- MAIN --}}
+    <main class="app-main">
+
+        {{-- HEADER --}}
+        <header class="app-header">
+
+            <div style="display:flex; align-items:center; gap:12px;">
+
+                <button
+                    type="button"
+                    class="mobile-menu-btn"
+                    @click="sidebarOpen = true"
+                >
+                    ☰
+                </button>
+
+                <h1 class="page-title">
+                    @yield('page-title', 'Dashboard')
+                </h1>
+
+            </div>
+
+        </header>
+
+
+        {{-- CONTENT --}}
+        <div class="app-content">
+
+            {{-- SUCCESS --}}
+            @if(session('success'))
+                <div style="
+                    margin-bottom:16px;
+                    padding:12px 16px;
+                    background:#ecfdf5;
+                    border:1px solid #a7f3d0;
+                    color:#047857;
+                    border-radius:8px;
+                    font-size:13px;
+                ">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+
+            {{-- ERROR --}}
+            @if($errors->any())
+                <div style="
+                    margin-bottom:16px;
+                    padding:12px 16px;
+                    background:#fef2f2;
+                    border:1px solid #fecaca;
+                    color:#b91c1c;
+                    border-radius:8px;
+                    font-size:13px;
+                ">
+                    <ul style="margin:0; padding-left:18px;">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+
+            {{ $slot }}
+
+        </div>
+
+    </main>
+
+</div>
 
 </body>
-
 </html>

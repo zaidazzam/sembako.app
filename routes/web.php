@@ -41,7 +41,8 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
         })->name('dashboard');
-
+Route::get('/orders/recap', [OrderController::class, 'recap'])
+    ->name('orders.recap');
     });
 
 
