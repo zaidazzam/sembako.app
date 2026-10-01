@@ -1,440 +1,898 @@
+{{-- resources/views/orders/index.blade.php --}}
+
 <x-app-layout>
 
     @section('title', 'Daftar Kebutuhan')
     @section('page-title', 'Daftar Kebutuhan')
 
-    <div class="space-y-6">
+    <div class="orders-page">
 
-        {{-- Header --}}
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
+        {{-- HEADER --}}
+        <div class="page-header">
             <div>
-                <h2 class="text-xl sm:text-2xl font-bold text-slate-800">
-                    Daftar Kebutuhan
-                </h2>
-
-                <p class="mt-1 text-sm text-slate-500">
-                    Daftar kebutuhan barang dari setiap warung.
-                </p>
+                <h2>Daftar Kebutuhan</h2>
+                <p>Daftar kebutuhan barang dari setiap warung.</p>
             </div>
 
-            <a
-                href="{{ route('orders.create') }}"
-                class="
-                    inline-flex
-                    items-center
-                    justify-center
-                    gap-2
-                    px-4 py-3
-                    rounded-xl
-                    bg-blue-600
-                    text-white
-                    text-sm
-                    font-semibold
-                    hover:bg-blue-700
-                    transition
-                "
-            >
-                <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 4v16m8-8H4"
-                    />
-                </svg>
-
+            <a href="{{ route('orders.create') }}" class="btn-primary">
+                <span>＋</span>
                 Catat Kebutuhan
             </a>
-
         </div>
 
+        {{-- TABLE CARD --}}
+        <div class="table-card">
 
-        {{-- Success --}}
-        @if(session('success'))
+            <div class="table-responsive">
+                <div class="table-wrapper">
 
-            <div
-                class="
-                    rounded-xl
-                    border border-green-200
-                    bg-green-50
-                    px-4 py-3
-                    text-sm
-                    text-green-700
-                "
-            >
-                {{ session('success') }}
-            </div>
+                    <table class="orders-table">
 
-        @endif
-
-
-        {{-- Table --}}
-        <div
-            class="
-                bg-white
-                rounded-2xl
-                border border-slate-200
-                shadow-sm
-                overflow-hidden
-            "
-        >
-
-            {{-- Mobile scroll --}}
-            <div class="overflow-x-auto">
-
-                <table class="w-full min-w-[900px]">
-
-                    <thead class="bg-slate-50 border-b border-slate-200">
-
-                        <tr>
-
-                            <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                No. Kebutuhan
-                            </th>
-
-                            <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                Warung
-                            </th>
-
-                            <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                Tanggal
-                            </th>
-
-                            <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                Jumlah Item
-                            </th>
-
-                            <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                Dibuat Oleh
-                            </th>
-
-                            <th class="px-5 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                Status
-                            </th>
-
-                            <th class="px-5 py-4 text-right text-xs font-semibold text-slate-500 uppercase">
-                                Aksi
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody class="divide-y divide-slate-100">
-
-                        @forelse($orders as $order)
-
-                            <tr class="hover:bg-slate-50 transition">
-
-                                {{-- Order Number --}}
-                                <td class="px-5 py-4">
-
-                                    <div class="font-semibold text-slate-700">
-                                        {{ $order->order_number }}
-                                    </div>
-
-                                </td>
-
-
-                                {{-- Warung --}}
-                                <td class="px-5 py-4">
-
-                                    <div class="font-medium text-slate-700">
-                                        {{ $order->warung->name }}
-                                    </div>
-
-                                    <div class="text-xs text-slate-400">
-                                        {{ $order->warung->code }}
-                                    </div>
-
-                                </td>
-
-
-                                {{-- Date --}}
-                                <td class="px-5 py-4">
-
-                                    <span class="text-sm text-slate-600">
-                                        {{ $order->order_date->format('d/m/Y') }}
-                                    </span>
-
-                                </td>
-
-
-                                {{-- Items --}}
-                                <td class="px-5 py-4">
-
-                                    <span
-                                        class="
-                                            inline-flex
-                                            items-center
-                                            rounded-full
-                                            bg-blue-50
-                                            px-3 py-1
-                                            text-xs
-                                            font-semibold
-                                            text-blue-600
-                                        "
-                                    >
-                                        {{ $order->items->count() }} produk
-                                    </span>
-
-                                </td>
-
-
-                                {{-- Created By --}}
-                                <td class="px-5 py-4">
-
-                                    <div class="text-sm text-slate-600">
-                                        {{ $order->createdBy->name }}
-                                    </div>
-
-                                </td>
-
-
-                                {{-- Status --}}
-                                <td class="px-5 py-4">
-
-                                    @php
-                                        $status = $order->status->value;
-                                    @endphp
-
-                                    @if($status === 'submitted')
-
-                                        <span
-                                            class="
-                                                inline-flex
-                                                rounded-full
-                                                bg-blue-50
-                                                px-3 py-1
-                                                text-xs
-                                                font-semibold
-                                                text-blue-600
-                                            "
-                                        >
-                                            Terkirim
-                                        </span>
-
-                                    @elseif($status === 'processing')
-
-                                        <span
-                                            class="
-                                                inline-flex
-                                                rounded-full
-                                                bg-yellow-50
-                                                px-3 py-1
-                                                text-xs
-                                                font-semibold
-                                                text-yellow-600
-                                            "
-                                        >
-                                            Diproses
-                                        </span>
-
-                                    @elseif($status === 'ready')
-
-                                        <span
-                                            class="
-                                                inline-flex
-                                                rounded-full
-                                                bg-green-50
-                                                px-3 py-1
-                                                text-xs
-                                                font-semibold
-                                                text-green-600
-                                            "
-                                        >
-                                            Siap
-                                        </span>
-
-                                    @elseif($status === 'completed')
-
-                                        <span
-                                            class="
-                                                inline-flex
-                                                rounded-full
-                                                bg-green-100
-                                                px-3 py-1
-                                                text-xs
-                                                font-semibold
-                                                text-green-700
-                                            "
-                                        >
-                                            Selesai
-                                        </span>
-
-                                    @elseif($status === 'cancelled')
-
-                                        <span
-                                            class="
-                                                inline-flex
-                                                rounded-full
-                                                bg-red-50
-                                                px-3 py-1
-                                                text-xs
-                                                font-semibold
-                                                text-red-600
-                                            "
-                                        >
-                                            Dibatalkan
-                                        </span>
-
-                                    @else
-
-                                        <span
-                                            class="
-                                                inline-flex
-                                                rounded-full
-                                                bg-slate-100
-                                                px-3 py-1
-                                                text-xs
-                                                font-semibold
-                                                text-slate-600
-                                            "
-                                        >
-                                            Draft
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- Action --}}
-                                <td class="px-5 py-4 text-right">
-
-                                    <a
-                                        href="{{ route('orders.show', $order) }}"
-                                        class="
-                                            inline-flex
-                                            items-center
-                                            justify-center
-                                            w-9 h-9
-                                            rounded-lg
-                                            text-slate-500
-                                            hover:bg-blue-50
-                                            hover:text-blue-600
-                                            transition
-                                        "
-                                        title="Lihat Detail"
-                                    >
-
-                                        <svg
-                                            class="w-5 h-5"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                            />
-
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                            />
-                                        </svg>
-
-                                    </a>
-
-                                </td>
-
-                            </tr>
-
-                        @empty
-
+                        <thead>
                             <tr>
+                                <th>NO. KEBUTUHAN</th>
+                                <th>WARUNG</th>
+                                <th>TANGGAL</th>
+                                <th>RINCIAN KEBUTUHAN</th>
+                                <th>DIBUAT OLEH</th>
+                                <th>STATUS</th>
+                                <th>TOTAL</th>
+                                <th>AKSI</th>
+                            </tr>
+                        </thead>
 
-                                <td
-                                    colspan="7"
-                                    class="px-5 py-12 text-center"
-                                >
+                        <tbody>
 
-                                    <div class="flex flex-col items-center">
+                            @forelse($orders as $order)
 
-                                        <div
-                                            class="
-                                                w-14 h-14
-                                                rounded-full
-                                                bg-slate-100
-                                                flex items-center justify-center
-                                            "
-                                        >
+                                <tr>
 
-                                            <svg
-                                                class="w-7 h-7 text-slate-400"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l4.414 4.414A1 1 0 0118 8.414V19a2 2 0 01-2 2z"
-                                                />
-                                            </svg>
+                                    {{-- NOMOR --}}
+                                    <td>
+
+                                        <a href="{{ route('orders.show', $order) }}" class="order-number">
+                                            {{ $order->order_number }}
+                                        </a>
+
+                                    </td>
+
+
+                                    {{-- WARUNG --}}
+                                    <td>
+
+                                        <div class="warung-name">
+                                            {{ $order->warung->name }}
+                                        </div>
+
+                                        <div class="warung-code">
+                                            {{ $order->warung->code }}
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- TANGGAL --}}
+                                    <td>
+
+                                        {{ $order->order_date->format('d/m/Y') }}
+
+                                    </td>
+
+
+                                    {{-- RINCIAN KEBUTUHAN --}}
+                                    <td>
+
+                                        <div class="requirement-list">
+
+                                            @foreach ($order->items as $item)
+                                                <div class="requirement-item">
+
+                                                    <div class="requirement-product">
+
+                                                        {{ $item->product->name }}
+
+                                                    </div>
+
+                                                    <div class="requirement-quantity">
+
+                                                        {{ rtrim(rtrim(number_format($item->quantity, 3, ',', '.'), '0'), ',') }}
+
+                                                        {{ $item->unit }}
+
+                                                    </div>
+
+                                                </div>
+                                            @endforeach
 
                                         </div>
 
-                                        <h3 class="mt-4 font-semibold text-slate-700">
-                                            Belum ada kebutuhan
-                                        </h3>
 
-                                        <p class="mt-1 text-sm text-slate-400">
-                                            Silakan catat kebutuhan warung terlebih dahulu.
-                                        </p>
+                                        <div class="requirement-summary">
 
-                                        <a
-                                            href="{{ route('orders.create') }}"
-                                            class="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-700"
-                                        >
-                                            + Catat Kebutuhan
+                                            {{ $order->items->count() }}
+                                            jenis produk
+
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- DIBUAT OLEH --}}
+                                    <td>
+
+                                        {{ $order->createdBy->name }}
+
+                                    </td>
+
+
+                                    {{-- STATUS --}}
+                                    <td>
+
+                                        <span class="status-badge">
+
+                                            <span class="status-dot"></span>
+
+                                            {{ $order->status->value === 'submitted' ? 'Terkirim' : ucfirst($order->status->value) }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    {{-- TOTAL HARGA --}}
+                                    <td>
+
+                                        @php
+                                            $total = $order->items->sum(function ($item) {
+                                                return $item->quantity * $item->product->price;
+                                            });
+                                        @endphp
+
+                                        <div class="order-total">
+                                            Rp {{ number_format($total, 0, ',', '.') }}
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- AKSI --}}
+                                    <td>
+
+                                        <a href="{{ route('orders.show', $order) }}" class="btn-detail"
+                                            title="Lihat detail">
+                                            👁
                                         </a>
 
-                                    </div>
+                                    </td>
 
-                                </td>
+                                </tr>
 
-                            </tr>
+                            @empty
 
-                        @endforelse
+                                <tr>
 
-                    </tbody>
+                                    <td colspan="8" class="empty-table">
+                                        Belum ada data kebutuhan.
+                                    </td>
 
-                </table>
+                                </tr>
 
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
+                </div>
             </div>
 
-
-            {{-- Pagination --}}
-            @if($orders->hasPages())
-
-                <div
-                    class="
-                        border-t border-slate-200
-                        px-4 sm:px-5
-                        py-4
-                    "
-                >
+            {{-- PAGINATION --}}
+            @if ($orders->hasPages())
+                <div class="pagination-wrapper">
                     {{ $orders->links() }}
                 </div>
-
             @endif
 
         </div>
 
     </div>
+
+
+    <style>
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+
+            background: #fff;
+
+            border: 1px solid #dfe3e8;
+            border-radius: 9px;
+
+            box-shadow:
+                0 1px 3px rgba(0, 0, 0, .03);
+        }
+
+
+        .orders-table {
+            width: 100%;
+
+            border-collapse: separate;
+            border-spacing: 0;
+
+            font-size: 12px;
+        }
+
+
+        .orders-table th {
+            padding: 13px 14px;
+
+            background: #f8fafc;
+
+            border-bottom: 1px solid #dfe3e8;
+            border-right: 1px solid #e5e7eb;
+
+            text-align: left;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            color: #475569;
+
+            white-space: nowrap;
+        }
+
+
+        .orders-table th:last-child {
+            border-right: none;
+        }
+
+
+        .orders-table td {
+            padding: 14px;
+
+            border-bottom: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+
+            vertical-align: middle;
+
+            color: #374151;
+        }
+
+
+        .orders-table td:last-child {
+            border-right: none;
+        }
+
+
+        .orders-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+
+        .orders-table tbody tr:hover {
+            background: #fafcff;
+        }
+
+
+        /* ==========================================
+   ORDER NUMBER
+========================================== */
+
+        .order-number {
+            color: #2563eb;
+
+            font-weight: 700;
+
+            text-decoration: none;
+
+            white-space: nowrap;
+        }
+
+
+        .order-number:hover {
+            text-decoration: underline;
+        }
+
+
+        /* ==========================================
+   WARUNG
+========================================== */
+
+        .warung-name {
+            font-weight: 700;
+
+            color: #1f2937;
+        }
+
+
+        .warung-code {
+            margin-top: 3px;
+
+            font-size: 10px;
+
+            color: #94a3b8;
+        }
+
+
+        /* ==========================================
+   REQUIREMENT
+========================================== */
+
+        .requirement-list {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 5px;
+
+            min-width: 220px;
+        }
+
+
+        .requirement-item {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            padding-bottom: 5px;
+
+            border-bottom: 1px dashed #e5e7eb;
+        }
+
+
+        .requirement-item:last-child {
+            border-bottom: none;
+
+            padding-bottom: 0;
+        }
+
+
+        .requirement-product {
+            color: #1f2937;
+
+            font-weight: 600;
+
+            line-height: 1.4;
+        }
+
+
+        .requirement-quantity {
+            color: #2563eb;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+
+        .requirement-summary {
+            margin-top: 8px;
+
+            font-size: 10px;
+
+            color: #94a3b8;
+        }
+
+
+        /* ==========================================
+   TOTAL
+========================================== */
+
+        .order-total {
+            color: #2563eb;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+
+        /* ==========================================
+   STATUS
+========================================== */
+
+        .status-badge {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding: 5px 9px;
+
+            border-radius: 6px;
+
+            background: #eff6ff;
+
+            color: #2563eb;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+            white-space: nowrap;
+        }
+
+
+        .status-dot {
+            width: 5px;
+            height: 5px;
+
+            border-radius: 50%;
+
+            background: #2563eb;
+        }
+
+
+        /* ==========================================
+   DETAIL BUTTON
+========================================== */
+
+        .btn-detail {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            width: 32px;
+            height: 32px;
+
+            border: 1px solid #dbe3ec;
+
+            border-radius: 7px;
+
+            background: #fff;
+
+            color: #475569;
+
+            text-decoration: none;
+
+            transition: .15s ease;
+        }
+
+
+        .btn-detail:hover {
+            background: #f8fafc;
+
+            border-color: #2563eb;
+
+            color: #2563eb;
+        }
+
+
+        /* ==========================================
+   EMPTY
+========================================== */
+
+        .empty-table {
+            padding: 40px !important;
+
+            text-align: center;
+
+            color: #94a3b8 !important;
+        }
+
+
+        /* ==========================================
+   MOBILE
+========================================== */
+
+        @media (max-width: 900px) {
+
+            .table-wrapper {
+                overflow-x: auto;
+            }
+
+
+            .orders-table {
+                min-width: 1100px;
+            }
+
+        }
+
+        /* ================================
+           ORDERS PAGE
+        ================================= */
+
+        .item-summary {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        .total-order-price {
+            font-size: 12px;
+            font-weight: 700;
+            color: #2563eb;
+            white-space: nowrap;
+        }
+
+        .orders-page {
+            width: 100%;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .page-header p {
+            margin: 5px 0 0;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+
+        /* ================================
+           BUTTON
+        ================================= */
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+
+            min-height: 40px;
+            padding: 0 16px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: #2563eb;
+            color: #fff;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            text-decoration: none;
+            cursor: pointer;
+
+            transition: all .2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+
+        /* ================================
+           TABLE CARD
+        ================================= */
+
+        .table-card {
+            background: #fff;
+            border: 1px solid #dfe3e8;
+            border-radius: 10px;
+            overflow: hidden;
+
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+
+        /* ================================
+           TABLE
+        ================================= */
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            font-size: 13px;
+        }
+
+        .orders-table thead {
+            background: #f8fafc;
+        }
+
+        .orders-table th {
+            padding: 14px 16px;
+
+            border-right: 1px solid #e5e7eb;
+            border-bottom: 2px solid #dfe3e8;
+
+            color: #374151;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+            letter-spacing: .3px;
+
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .orders-table th:last-child {
+            border-right: none;
+        }
+
+        .orders-table td {
+            padding: 15px 16px;
+
+            border-right: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+
+            color: #374151;
+
+            vertical-align: middle;
+            background: #fff;
+        }
+
+        .orders-table td:last-child {
+            border-right: none;
+        }
+
+        .orders-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .orders-table tbody tr {
+            transition: background .15s ease;
+        }
+
+        .orders-table tbody tr:hover td {
+            background: #f8faff;
+        }
+
+
+        /* ================================
+           ORDER NUMBER
+        ================================= */
+
+        .order-number {
+            font-size: 12px;
+            font-weight: 700;
+            color: #2563eb;
+            white-space: nowrap;
+        }
+
+
+        /* ================================
+           WARUNG
+        ================================= */
+
+        .warung-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .warung-code {
+            margin-top: 3px;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+
+        /* ================================
+           DATE
+        ================================= */
+
+        .date-text {
+            color: #4b5563;
+            white-space: nowrap;
+        }
+
+
+        /* ================================
+           ITEM BADGE
+        ================================= */
+
+        .item-badge {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 5px 9px;
+
+            border-radius: 6px;
+
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+
+            color: #475569;
+
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+
+        /* ================================
+           CREATOR
+        ================================= */
+
+        .creator-name {
+            font-weight: 500;
+            color: #374151;
+        }
+
+
+        /* ================================
+           STATUS
+        ================================= */
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            padding: 5px 9px;
+
+            border-radius: 6px;
+
+            font-size: 11px;
+            font-weight: 600;
+
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-draft {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .status-submitted {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .status-processing {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+        .status-ready {
+            background: #ecfeff;
+            color: #0891b2;
+        }
+
+        .status-completed {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .status-cancelled {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+
+        /* ================================
+           ACTION
+        ================================= */
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid #dbe2ea;
+            border-radius: 7px;
+
+            background: #fff;
+            color: #4b5563;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            transition: all .15s ease;
+        }
+
+        .action-btn:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #2563eb;
+        }
+
+
+        /* ================================
+           EMPTY
+        ================================= */
+
+        .empty-state {
+            padding: 60px 20px !important;
+            text-align: center;
+            border-right: none !important;
+        }
+
+        .empty-icon {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+
+        .empty-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .empty-text {
+            margin: 5px 0 18px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+
+        /* ================================
+           PAGINATION
+        ================================= */
+
+        .pagination-wrapper {
+            padding: 14px 18px;
+            border-top: 1px solid #e5e7eb;
+            background: #fafafa;
+        }
+
+
+        /* ================================
+           MOBILE
+        ================================= */
+
+        @media (max-width: 768px) {
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .page-header h2 {
+                font-size: 18px;
+            }
+
+            .btn-primary {
+                width: 100%;
+            }
+
+            .table-card {
+                border-radius: 8px;
+            }
+
+            .orders-table {
+                min-width: 950px;
+            }
+
+            .orders-table th,
+            .orders-table td {
+                padding: 12px 14px;
+            }
+
+        }
+    </style>
 
 </x-app-layout>

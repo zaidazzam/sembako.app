@@ -3,72 +3,69 @@
     @section('title', 'Catat Kebutuhan')
     @section('page-title', 'Catat Kebutuhan')
 
-    <div
-        x-data="orderForm()"
-        class="space-y-6"
-    >
+    @php
+        $productData = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => (float) $product->price,
+                'unit' => $product->unit,
+                'category' => $product->category?->name ?? '-',
+            ];
+        })->values();
+    @endphp
 
-        {{-- =========================================================
-            HEADER
-        ========================================================== --}}
-        <div>
 
-            <div class="flex items-center gap-2 mb-2">
+    <div class="create-order-page">
 
-                <a
-                    href="{{ route('orders.index') }}"
-                    class="text-sm text-slate-400 hover:text-blue-600"
-                >
+        {{-- ==========================================
+             HEADER
+        =========================================== --}}
+
+        <div class="page-header">
+
+            <div>
+
+                <div class="breadcrumb">
                     Kebutuhan
-                </a>
-
-                <span class="text-slate-300">
-                    /
-                </span>
-
-                <span class="text-sm text-slate-500">
+                    <span>/</span>
                     Catat Kebutuhan
-                </span>
+                </div>
+
+                <h2>Catat Kebutuhan Warung</h2>
+
+                <p>
+                    Masukkan produk dan jumlah kebutuhan dari warung.
+                </p>
 
             </div>
 
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-800">
-                Catat Kebutuhan Warung
-            </h2>
-
-            <p class="mt-1 text-sm text-slate-500">
-                Masukkan produk dan jumlah kebutuhan dari warung.
-            </p>
+            <a
+                href="{{ route('orders.index') }}"
+                class="btn-secondary"
+            >
+                ← Kembali
+            </a>
 
         </div>
 
 
-        {{-- =========================================================
-            VALIDATION ERROR
-        ========================================================== --}}
+        {{-- ==========================================
+             VALIDATION ERROR
+        =========================================== --}}
+
         @if($errors->any())
 
-            <div
-                class="
-                    rounded-xl
-                    border border-red-200
-                    bg-red-50
-                    px-4 py-4
-                "
-            >
+            <div class="alert-error">
 
-                <p class="font-semibold text-red-700 text-sm">
+                <div class="alert-title">
                     Terdapat kesalahan:
-                </p>
+                </div>
 
-                <ul class="mt-2 list-disc list-inside text-sm text-red-600 space-y-1">
+                <ul>
 
                     @foreach($errors->all() as $error)
-
-                        <li>
-                            {{ $error }}
-                        </li>
-
+                        <li>{{ $error }}</li>
                     @endforeach
 
                 </ul>
@@ -78,67 +75,57 @@
         @endif
 
 
-        {{-- =========================================================
-            FORM
-        ========================================================== --}}
+        {{-- ==========================================
+             FORM
+        =========================================== --}}
+
         <form
             method="POST"
             action="{{ route('orders.store') }}"
+            x-data="createOrderForm()"
         >
 
             @csrf
 
 
-            {{-- =====================================================
-                INFORMASI WARUNG
-            ====================================================== --}}
-            <div
-                class="
-                    bg-white
-                    rounded-2xl
-                    border border-slate-200
-                    shadow-sm
-                    p-4 sm:p-6
-                "
-            >
+            {{-- ======================================
+                 INFORMASI KEBUTUHAN
+            ======================================= --}}
 
-                <h3 class="text-base font-bold text-slate-800">
-                    Informasi Kebutuhan
-                </h3>
+            <div class="form-card">
 
-                <p class="mt-1 text-sm text-slate-400">
-                    Pilih warung dan tanggal pencatatan.
-                </p>
+                <div class="card-header">
 
-
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
-
-                    {{-- Warung --}}
                     <div>
 
-                        <label
-                            for="warung_id"
-                            class="block text-sm font-semibold text-slate-700 mb-2"
-                        >
-                            Warung
-                            <span class="text-red-500">*</span>
+                        <h3>
+                            Informasi Kebutuhan
+                        </h3>
+
+                        <p>
+                            Pilih warung dan tanggal pencatatan.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-body">
+
+                    {{-- WARUNG --}}
+
+                    <div class="form-group">
+
+                        <label for="warung_id">
+                            Warung <span>*</span>
                         </label>
 
                         <select
                             id="warung_id"
                             name="warung_id"
+                            class="form-control"
                             required
-                            class="
-                                w-full
-                                rounded-xl
-                                border border-slate-300
-                                bg-white
-                                px-4 py-3
-                                text-sm
-                                text-slate-700
-                                focus:border-blue-500
-                                focus:ring-blue-500
-                            "
                         >
 
                             <option value="">
@@ -149,7 +136,7 @@
 
                                 <option
                                     value="{{ $warung->id }}"
-                                    @selected(old('warung_id') == $warung->id)
+                                    {{ old('warung_id') == $warung->id ? 'selected' : '' }}
                                 >
                                     {{ $warung->name }}
                                     ({{ $warung->code }})
@@ -162,15 +149,12 @@
                     </div>
 
 
-                    {{-- Tanggal --}}
-                    <div>
+                    {{-- TANGGAL --}}
 
-                        <label
-                            for="order_date"
-                            class="block text-sm font-semibold text-slate-700 mb-2"
-                        >
-                            Tanggal
-                            <span class="text-red-500">*</span>
+                    <div class="form-group">
+
+                        <label for="order_date">
+                            Tanggal <span>*</span>
                         </label>
 
                         <input
@@ -178,18 +162,8 @@
                             id="order_date"
                             name="order_date"
                             value="{{ old('order_date', now()->format('Y-m-d')) }}"
+                            class="form-control"
                             required
-                            class="
-                                w-full
-                                rounded-xl
-                                border border-slate-300
-                                bg-white
-                                px-4 py-3
-                                text-sm
-                                text-slate-700
-                                focus:border-blue-500
-                                focus:ring-blue-500
-                            "
                         >
 
                     </div>
@@ -199,291 +173,219 @@
             </div>
 
 
-            {{-- =====================================================
-                PRODUK
-            ====================================================== --}}
-            <div
-                class="
-                    mt-6
-                    bg-white
-                    rounded-2xl
-                    border border-slate-200
-                    shadow-sm
-                    overflow-hidden
-                "
-            >
 
-                {{-- Header --}}
-                <div
-                    class="
-                        px-4 sm:px-6
-                        py-4
-                        border-b border-slate-200
-                        flex flex-col sm:flex-row
-                        sm:items-center
-                        sm:justify-between
-                        gap-3
-                    "
-                >
+            {{-- ======================================
+                 PRODUK KEBUTUHAN
+            ======================================= --}}
+
+            <div class="form-card">
+
+                <div class="card-header">
 
                     <div>
 
-                        <h3 class="text-base font-bold text-slate-800">
+                        <h3>
                             Produk Kebutuhan
                         </h3>
 
-                        <p class="mt-1 text-sm text-slate-400">
+                        <p>
                             Tambahkan produk yang dibutuhkan warung.
                         </p>
 
                     </div>
 
 
-                    {{-- Add Product --}}
                     <button
                         type="button"
+                        class="btn-primary"
                         @click="addItem()"
-                        class="
-                            inline-flex
-                            items-center
-                            justify-center
-                            gap-2
-                            px-4 py-3
-                            rounded-xl
-                            bg-blue-600
-                            text-white
-                            text-sm
-                            font-semibold
-                            hover:bg-blue-700
-                            transition
-                        "
                     >
-
-                        <svg
-                            class="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M12 4v16m8-8H4"
-                            />
-                        </svg>
-
-                        Tambah Produk
-
+                        ＋ Tambah Produk
                     </button>
 
                 </div>
 
 
-                {{-- Product Items --}}
-                <div class="p-4 sm:p-6 space-y-4">
+                <div class="product-list">
 
                     <template
                         x-for="(item, index) in items"
                         :key="item.key"
                     >
 
-                        <div
-                            class="
-                                relative
-                                rounded-2xl
-                                border border-slate-200
-                                bg-slate-50
-                                p-4
-                            "
-                        >
+                        <div class="product-row">
 
-                            {{-- Remove --}}
-                            <button
-                                type="button"
-                                @click="removeItem(index)"
-                                x-show="items.length > 1"
-                                class="
-                                    absolute
-                                    top-3
-                                    right-3
-                                    w-9 h-9
-                                    rounded-lg
-                                    flex items-center justify-center
-                                    text-slate-400
-                                    hover:text-red-500
-                                    hover:bg-red-50
-                                    transition
-                                "
-                                title="Hapus produk"
-                            >
 
-                                <svg
-                                    class="w-5 h-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                            {{-- ==================================
+                                 PRODUK
+                            =================================== --}}
+
+                            <div class="form-group product-field">
+
+                                <label>
+                                    Produk <span>*</span>
+                                </label>
+
+                                <select
+                                    :name="`items[${index}][product_id]`"
+                                    x-model="item.product_id"
+                                    class="form-control"
+                                    required
                                 >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
 
-                            </button>
+                                    <option value="">
+                                        -- Pilih Produk --
+                                    </option>
 
+                                    @foreach($products as $product)
 
-                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 pr-10">
-
-                                {{-- Product --}}
-                                <div class="md:col-span-6">
-
-                                    <label
-                                        class="
-                                            block
-                                            text-sm
-                                            font-semibold
-                                            text-slate-700
-                                            mb-2
-                                        "
-                                    >
-                                        Produk
-                                        <span class="text-red-500">*</span>
-                                    </label>
-
-                                    <select
-                                        :name="`items[${index}][product_id]`"
-                                        x-model="item.product_id"
-                                        required
-                                        class="
-                                            w-full
-                                            rounded-xl
-                                            border border-slate-300
-                                            bg-white
-                                            px-4 py-3
-                                            text-sm
-                                            text-slate-700
-                                            focus:border-blue-500
-                                            focus:ring-blue-500
-                                        "
-                                    >
-
-                                        <option value="">
-                                            -- Pilih Produk --
+                                        <option
+                                            value="{{ $product->id }}"
+                                        >
+                                            {{ $product->name }}
+                                            ({{ $product->unit }})
                                         </option>
 
-                                        @foreach($products as $product)
+                                    @endforeach
 
-                                            <option
-                                                value="{{ $product->id }}"
-                                            >
-                                                {{ $product->name }}
-                                                -
-                                                {{ $product->unit }}
-                                            </option>
-
-                                        @endforeach
-
-                                    </select>
-
-                                </div>
+                                </select>
 
 
-                                {{-- Quantity --}}
-                                <div class="md:col-span-3">
+                                {{-- HARGA PRODUK --}}
 
-                                    <label
-                                        class="
-                                            block
-                                            text-sm
-                                            font-semibold
-                                            text-slate-700
-                                            mb-2
-                                        "
-                                    >
-                                        Jumlah
-                                        <span class="text-red-500">*</span>
-                                    </label>
+                                <div
+                                    class="product-info"
+                                    x-show="item.product_id"
+                                >
 
-                                    <input
-                                        type="number"
-                                        step="0.001"
-                                        min="0.001"
-                                        :name="`items[${index}][quantity]`"
-                                        x-model="item.quantity"
-                                        required
-                                        placeholder="0"
-                                        class="
-                                            w-full
-                                            rounded-xl
-                                            border border-slate-300
-                                            bg-white
-                                            px-4 py-3
-                                            text-sm
-                                            text-slate-700
-                                            focus:border-blue-500
-                                            focus:ring-blue-500
-                                        "
-                                    >
+                                    <span
+                                        x-text="getProductCategory(item.product_id)"
+                                    ></span>
 
-                                </div>
+                                    <span class="separator">
+                                        •
+                                    </span>
 
-
-                                {{-- Notes --}}
-                                <div class="md:col-span-3">
-
-                                    <label
-                                        class="
-                                            block
-                                            text-sm
-                                            font-semibold
-                                            text-slate-700
-                                            mb-2
-                                        "
-                                    >
-                                        Catatan
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        :name="`items[${index}][notes]`"
-                                        x-model="item.notes"
-                                        placeholder="Opsional"
-                                        class="
-                                            w-full
-                                            rounded-xl
-                                            border border-slate-300
-                                            bg-white
-                                            px-4 py-3
-                                            text-sm
-                                            text-slate-700
-                                            focus:border-blue-500
-                                            focus:ring-blue-500
-                                        "
-                                    >
+                                    <span
+                                        x-text="getProductPrice(item.product_id)"
+                                    ></span>
 
                                 </div>
 
                             </div>
+
+
+
+                            {{-- ==================================
+                                 JUMLAH
+                            =================================== --}}
+
+                            <div class="form-group quantity-field">
+
+                                <label>
+                                    Jumlah <span>*</span>
+                                </label>
+
+                                <input
+                                    type="number"
+                                    step="0.001"
+                                    min="0.001"
+                                    :name="`items[${index}][quantity]`"
+                                    x-model="item.quantity"
+                                    class="form-control"
+                                    placeholder="0"
+                                    required
+                                >
+
+                                <div
+                                    class="unit-info"
+                                    x-show="item.product_id"
+                                    x-text="getProductUnit(item.product_id)"
+                                ></div>
+
+                            </div>
+
+
+
+                            {{-- ==================================
+                                 SUBTOTAL
+                            =================================== --}}
+
+                            <div class="form-group subtotal-field">
+
+                                <label>
+                                    Subtotal
+                                </label>
+
+                                <div
+                                    class="subtotal-box"
+                                    :class="{ 'empty': !item.product_id }"
+                                    x-text="formatRupiah(itemSubtotal(item))"
+                                >
+                                    Rp 0
+                                </div>
+
+                            </div>
+
+
+
+                            {{-- ==================================
+                                 CATATAN
+                            =================================== --}}
+
+                            <div class="form-group notes-field">
+
+                                <label>
+                                    Catatan
+                                </label>
+
+                                <input
+                                    type="text"
+                                    :name="`items[${index}][notes]`"
+                                    x-model="item.notes"
+                                    class="form-control"
+                                    placeholder="Opsional"
+                                >
+
+                            </div>
+
+
+
+                            {{-- ==================================
+                                 REMOVE
+                            =================================== --}}
+
+                            <div class="remove-field">
+
+                                <button
+                                    type="button"
+                                    class="btn-remove"
+                                    @click="removeItem(index)"
+                                    :disabled="items.length <= 1"
+                                    title="Hapus produk"
+                                >
+                                    ×
+                                </button>
+
+                            </div>
+
 
                         </div>
 
                     </template>
 
 
-                    {{-- Empty --}}
+                    {{-- EMPTY PRODUCT --}}
+
                     <div
+                        class="product-empty"
                         x-show="items.length === 0"
-                        class="
-                            py-10
-                            text-center
-                            text-sm
-                            text-slate-400
-                        "
                     >
+
                         Belum ada produk.
+                        Silakan klik
+                        <strong>Tambah Produk</strong>.
+
                     </div>
 
                 </div>
@@ -491,82 +393,93 @@
             </div>
 
 
-            {{-- =====================================================
-                CATATAN UMUM
-            ====================================================== --}}
-            <div
-                class="
-                    mt-6
-                    bg-white
-                    rounded-2xl
-                    border border-slate-200
-                    shadow-sm
-                    p-4 sm:p-6
-                "
-            >
 
-                <label
-                    for="notes"
-                    class="
-                        block
-                        text-sm
-                        font-semibold
-                        text-slate-700
-                        mb-2
-                    "
-                >
-                    Catatan Umum
-                </label>
+            {{-- ======================================
+                 CATATAN UMUM
+            ======================================= --}}
 
-                <textarea
-                    id="notes"
-                    name="notes"
-                    rows="4"
-                    placeholder="Catatan tambahan untuk kebutuhan warung..."
-                    class="
-                        w-full
-                        rounded-xl
-                        border border-slate-300
-                        bg-white
-                        px-4 py-3
-                        text-sm
-                        text-slate-700
-                        focus:border-blue-500
-                        focus:ring-blue-500
-                    "
-                >{{ old('notes') }}</textarea>
+            <div class="form-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h3>
+                            Catatan Umum
+                        </h3>
+
+                        <p>
+                            Catatan tambahan untuk kebutuhan warung.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-body">
+
+                    <div class="form-group full-width">
+
+                        <label for="notes">
+                            Catatan
+                        </label>
+
+                        <textarea
+                            id="notes"
+                            name="notes"
+                            rows="4"
+                            class="form-control"
+                            placeholder="Catatan tambahan untuk kebutuhan warung..."
+                        >{{ old('notes') }}</textarea>
+
+                    </div>
+
+                </div>
 
             </div>
 
 
-            {{-- =====================================================
-                ACTION
-            ====================================================== --}}
-            <div
-                class="
-                    mt-6
-                    flex flex-col-reverse
-                    sm:flex-row
-                    sm:justify-end
-                    gap-3
-                "
-            >
+
+            {{-- ======================================
+                 TOTAL PESANAN
+            ======================================= --}}
+
+            <div class="total-card">
+
+                <div>
+
+                    <div class="total-label">
+                        Total Pesanan
+                    </div>
+
+                    <div class="total-description">
+                        Total berdasarkan jumlah produk dan harga saat ini.
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="total-value"
+                    x-text="formatRupiah(totalPrice())"
+                >
+                    Rp 0
+                </div>
+
+            </div>
+
+
+
+            {{-- ======================================
+                 ACTION
+            ======================================= --}}
+
+            <div class="form-actions">
 
                 <a
                     href="{{ route('orders.index') }}"
-                    class="
-                        inline-flex
-                        items-center
-                        justify-center
-                        px-5 py-3
-                        rounded-xl
-                        border border-slate-200
-                        bg-white
-                        text-sm
-                        font-semibold
-                        text-slate-600
-                        hover:bg-slate-50
-                    "
+                    class="btn-secondary"
                 >
                     Batal
                 </a>
@@ -574,39 +487,9 @@
 
                 <button
                     type="submit"
-                    class="
-                        inline-flex
-                        items-center
-                        justify-center
-                        gap-2
-                        px-5 py-3
-                        rounded-xl
-                        bg-blue-600
-                        text-white
-                        text-sm
-                        font-semibold
-                        hover:bg-blue-700
-                        active:bg-blue-800
-                        transition
-                    "
+                    class="btn-primary btn-save"
                 >
-
-                    <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M5 13l4 4L19 7"
-                        />
-                    </svg>
-
-                    Simpan Kebutuhan
-
+                    ✓ Simpan Kebutuhan
                 </button>
 
             </div>
@@ -616,14 +499,18 @@
     </div>
 
 
-    {{-- =============================================================
-        ALPINE JS
-    ============================================================= --}}
+
+    {{-- ==============================================
+         JAVASCRIPT
+    =============================================== --}}
+
     <script>
 
-        function orderForm() {
+        function createOrderForm() {
 
             return {
+
+                products: @json($productData),
 
                 items: [
                     {
@@ -634,21 +521,30 @@
                     }
                 ],
 
+
+                /*
+                |--------------------------------------------------------------------------
+                | TAMBAH PRODUK
+                |--------------------------------------------------------------------------
+                */
+
                 addItem() {
 
                     this.items.push({
-
                         key: Date.now() + Math.random(),
-
                         product_id: '',
-
                         quantity: '',
-
                         notes: ''
-
                     });
 
                 },
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | HAPUS PRODUK
+                |--------------------------------------------------------------------------
+                */
 
                 removeItem(index) {
 
@@ -658,6 +554,144 @@
 
                     this.items.splice(index, 1);
 
+                },
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | GET PRODUCT
+                |--------------------------------------------------------------------------
+                */
+
+                getProduct(productId) {
+
+                    return this.products.find(
+                        product =>
+                            String(product.id) === String(productId)
+                    );
+
+                },
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CATEGORY
+                |--------------------------------------------------------------------------
+                */
+
+                getProductCategory(productId) {
+
+                    const product = this.getProduct(productId);
+
+                    if (!product) {
+                        return '';
+                    }
+
+                    return product.category;
+
+                },
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | PRICE
+                |--------------------------------------------------------------------------
+                */
+
+                getProductPrice(productId) {
+
+                    const product = this.getProduct(productId);
+
+                    if (!product) {
+                        return '';
+                    }
+
+                    return this.formatRupiah(product.price);
+
+                },
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | UNIT
+                |--------------------------------------------------------------------------
+                */
+
+                getProductUnit(productId) {
+
+                    const product = this.getProduct(productId);
+
+                    if (!product) {
+                        return '';
+                    }
+
+                    return `Satuan: ${product.unit}`;
+
+                },
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | SUBTOTAL
+                |--------------------------------------------------------------------------
+                */
+
+                itemSubtotal(item) {
+
+                    const product = this.getProduct(
+                        item.product_id
+                    );
+
+                    if (!product) {
+                        return 0;
+                    }
+
+                    const quantity =
+                        parseFloat(item.quantity) || 0;
+
+                    return quantity * product.price;
+
+                },
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | TOTAL
+                |--------------------------------------------------------------------------
+                */
+
+                totalPrice() {
+
+                    return this.items.reduce(
+                        (total, item) => {
+
+                            return total +
+                                this.itemSubtotal(item);
+
+                        },
+                        0
+                    );
+
+                },
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | RUPIAH
+                |--------------------------------------------------------------------------
+                */
+
+                formatRupiah(value) {
+
+                    return new Intl.NumberFormat(
+                        'id-ID',
+                        {
+                            style: 'currency',
+                            currency: 'IDR',
+                            maximumFractionDigits: 0
+                        }
+                    ).format(value || 0);
+
                 }
 
             };
@@ -665,5 +699,703 @@
         }
 
     </script>
+
+
+
+    {{-- ==============================================
+         CSS
+    =============================================== --}}
+
+    <style>
+
+        /* ==========================================
+           PAGE
+        =========================================== */
+
+        .create-order-page {
+            width: 100%;
+        }
+
+
+        /* ==========================================
+           HEADER
+        =========================================== */
+
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb {
+            margin-bottom: 7px;
+
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .breadcrumb span {
+            margin: 0 5px;
+
+            color: #9ca3af;
+        }
+
+        .page-header h2 {
+            margin: 0;
+
+            font-size: 20px;
+            font-weight: 700;
+
+            color: #111827;
+        }
+
+        .page-header p {
+            margin: 5px 0 0;
+
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+
+        /* ==========================================
+           CARD
+        =========================================== */
+
+        .form-card {
+            margin-bottom: 16px;
+
+            background: #fff;
+
+            border: 1px solid #dfe3e8;
+            border-radius: 9px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 1px 3px rgba(0, 0, 0, .03);
+        }
+
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            min-height: 66px;
+
+            padding: 13px 16px;
+
+            background: #fafbfc;
+
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+
+        .card-header h3 {
+            margin: 0;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            color: #1f2937;
+        }
+
+
+        .card-header p {
+            margin: 4px 0 0;
+
+            font-size: 11px;
+
+            color: #9ca3af;
+        }
+
+
+        .form-body {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 18px;
+
+            padding: 18px;
+        }
+
+
+        /* ==========================================
+           FORM
+        =========================================== */
+
+        .form-group {
+            min-width: 0;
+        }
+
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+
+        .form-group label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-size: 11px;
+            font-weight: 600;
+
+            color: #374151;
+        }
+
+
+        .form-group label span {
+            color: #ef4444;
+        }
+
+
+        .form-control {
+            width: 100%;
+
+            min-height: 40px;
+
+            padding: 8px 11px;
+
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+
+            background: #fff;
+
+            color: #1f2937;
+
+            font-size: 12px;
+
+            outline: none;
+
+            transition:
+                border-color .15s ease,
+                box-shadow .15s ease;
+        }
+
+
+        .form-control:focus {
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(37, 99, 235, .08);
+        }
+
+
+        textarea.form-control {
+            resize: vertical;
+
+            min-height: 100px;
+        }
+
+
+        /* ==========================================
+           PRODUCT
+        =========================================== */
+
+        .product-list {
+            padding: 16px;
+        }
+
+
+        .product-row {
+            display: grid;
+
+            grid-template-columns:
+                2.2fr
+                1fr
+                1.2fr
+                1.7fr
+                42px;
+
+            gap: 12px;
+
+            padding: 16px;
+
+            margin-bottom: 10px;
+
+            background: #fff;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 8px;
+
+            transition:
+                border-color .15s ease,
+                box-shadow .15s ease;
+        }
+
+
+        .product-row:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .product-row:hover {
+            border-color: #d1d5db;
+
+            box-shadow:
+                0 2px 5px
+                rgba(0, 0, 0, .03);
+        }
+
+
+        .product-info {
+            display: flex;
+            align-items: center;
+
+            gap: 5px;
+
+            margin-top: 5px;
+
+            font-size: 10px;
+
+            color: #6b7280;
+        }
+
+
+        .product-info .separator {
+            color: #d1d5db;
+        }
+
+
+        .unit-info {
+            margin-top: 5px;
+
+            font-size: 10px;
+
+            color: #9ca3af;
+        }
+
+
+        /* ==========================================
+           SUBTOTAL
+        =========================================== */
+
+        .subtotal-box {
+            display: flex;
+            align-items: center;
+
+            width: 100%;
+
+            min-height: 40px;
+
+            padding: 8px 11px;
+
+            border: 1px solid #dbeafe;
+            border-radius: 7px;
+
+            background: #eff6ff;
+
+            color: #2563eb;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+
+        .subtotal-box.empty {
+            background: #f9fafb;
+
+            border-color: #e5e7eb;
+
+            color: #9ca3af;
+
+            font-weight: 400;
+        }
+
+
+        /* ==========================================
+           REMOVE
+        =========================================== */
+
+        .remove-field {
+            display: flex;
+
+            align-items: flex-end;
+
+            justify-content: center;
+
+            padding-bottom: 1px;
+        }
+
+
+        .btn-remove {
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid #fecaca;
+
+            border-radius: 7px;
+
+            background: #fef2f2;
+
+            color: #dc2626;
+
+            font-size: 20px;
+
+            line-height: 1;
+
+            cursor: pointer;
+
+            transition: all .15s ease;
+        }
+
+
+        .btn-remove:hover:not(:disabled) {
+            background: #fee2e2;
+
+            border-color: #fca5a5;
+        }
+
+
+        .btn-remove:disabled {
+            opacity: .4;
+
+            cursor: not-allowed;
+        }
+
+
+        /* ==========================================
+           EMPTY
+        =========================================== */
+
+        .product-empty {
+            padding: 30px;
+
+            text-align: center;
+
+            border: 1px dashed #d1d5db;
+
+            border-radius: 8px;
+
+            color: #9ca3af;
+
+            font-size: 12px;
+        }
+
+
+        /* ==========================================
+           TOTAL
+        =========================================== */
+
+        .total-card {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 16px;
+
+            padding: 18px 20px;
+
+            background: #fff;
+
+            border: 1px solid #dbeafe;
+
+            border-radius: 9px;
+
+            box-shadow:
+                0 1px 3px
+                rgba(0, 0, 0, .03);
+        }
+
+
+        .total-label {
+            font-size: 13px;
+
+            font-weight: 700;
+
+            color: #374151;
+        }
+
+
+        .total-description {
+            margin-top: 4px;
+
+            font-size: 10px;
+
+            color: #9ca3af;
+        }
+
+
+        .total-value {
+            font-size: 20px;
+
+            font-weight: 800;
+
+            color: #2563eb;
+
+            white-space: nowrap;
+        }
+
+
+        /* ==========================================
+           BUTTON
+        =========================================== */
+
+        .btn-primary,
+        .btn-secondary {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 6px;
+
+            min-height: 38px;
+
+            padding: 0 14px;
+
+            border-radius: 7px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            transition: all .15s ease;
+        }
+
+
+        .btn-primary {
+            border: 1px solid #2563eb;
+
+            background: #2563eb;
+
+            color: #fff;
+        }
+
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+
+            border-color: #1d4ed8;
+
+            color: #fff;
+        }
+
+
+        .btn-secondary {
+            border: 1px solid #d1d5db;
+
+            background: #fff;
+
+            color: #374151;
+        }
+
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+
+            color: #111827;
+        }
+
+
+        .form-actions {
+            display: flex;
+
+            justify-content: flex-end;
+
+            gap: 8px;
+
+            padding-bottom: 20px;
+        }
+
+
+        .btn-save {
+            min-width: 160px;
+        }
+
+
+        /* ==========================================
+           ERROR
+        =========================================== */
+
+        .alert-error {
+            margin-bottom: 16px;
+
+            padding: 13px 15px;
+
+            border: 1px solid #fecaca;
+
+            border-radius: 8px;
+
+            background: #fef2f2;
+
+            color: #991b1b;
+
+            font-size: 12px;
+        }
+
+
+        .alert-title {
+            margin-bottom: 5px;
+
+            font-weight: 700;
+        }
+
+
+        .alert-error ul {
+            margin: 5px 0 0;
+
+            padding-left: 18px;
+        }
+
+
+        /* ==========================================
+           RESPONSIVE
+        =========================================== */
+
+        @media (max-width: 1100px) {
+
+            .product-row {
+                grid-template-columns:
+                    2fr
+                    1fr
+                    1.2fr
+                    1.5fr
+                    42px;
+            }
+
+        }
+
+
+        @media (max-width: 900px) {
+
+            .product-row {
+                position: relative;
+
+                grid-template-columns:
+                    1fr 1fr;
+
+                padding-right: 60px;
+            }
+
+
+            .product-field {
+                grid-column: 1 / -1;
+            }
+
+
+            .notes-field {
+                grid-column: 1 / -1;
+            }
+
+
+            .remove-field {
+                position: absolute;
+
+                top: 15px;
+                right: 15px;
+
+                padding: 0;
+            }
+
+        }
+
+
+        @media (max-width: 768px) {
+
+            .page-header {
+                align-items: stretch;
+
+                flex-direction: column;
+            }
+
+
+            .page-header .btn-secondary {
+                width: 100%;
+            }
+
+
+            .form-body {
+                grid-template-columns: 1fr;
+            }
+
+
+            .product-row {
+                grid-template-columns: 1fr;
+
+                padding-right: 55px;
+            }
+
+
+            .product-field,
+            .notes-field {
+                grid-column: auto;
+            }
+
+
+            .total-card {
+                align-items: flex-start;
+
+                flex-direction: column;
+            }
+
+
+            .total-value {
+                font-size: 18px;
+            }
+
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+
+            .form-actions .btn-primary,
+            .form-actions .btn-secondary {
+                width: 100%;
+            }
+
+
+            .card-header {
+                align-items: flex-start;
+
+                flex-direction: column;
+            }
+
+
+            .card-header .btn-primary {
+                width: 100%;
+            }
+
+
+            .product-list {
+                padding: 12px;
+            }
+
+
+            .product-row {
+                padding: 14px;
+            }
+
+        }
+
+    </style>
 
 </x-app-layout>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -281,210 +282,223 @@
 
 <body>
 
-<div
-    x-data="{ sidebarOpen: false }"
-    @keydown.escape.window="sidebarOpen = false"
->
+    <div x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false">
 
-    {{-- OVERLAY MOBILE --}}
-    <div
-        class="sidebar-overlay"
-        :class="{ 'open': sidebarOpen }"
-        @click="sidebarOpen = false"
-    ></div>
+        {{-- OVERLAY MOBILE --}}
+        <div class="sidebar-overlay" :class="{ 'open': sidebarOpen }" @click="sidebarOpen = false"></div>
 
 
-    {{-- SIDEBAR --}}
-    <aside
-        class="app-sidebar"
-        :class="{ 'open': sidebarOpen }"
-    >
+        {{-- SIDEBAR --}}
+        <aside class="app-sidebar" :class="{ 'open': sidebarOpen }">
 
-        {{-- BRAND --}}
-        <div class="sidebar-brand">
+            {{-- BRAND --}}
+            <div class="sidebar-brand">
 
-            <div class="brand-icon">
-                🏪
-            </div>
-
-            <div class="brand-text">
-                <div class="brand-title">
-                    Sembako App
+                <div class="brand-icon">
+                    🏪
                 </div>
 
-                <div class="brand-subtitle">
-                    Manajemen Kebutuhan Warung
-                </div>
-            </div>
-
-        </div>
-
-
-        {{-- MENU --}}
-        <div class="sidebar-menu">
-
-            {{-- DASHBOARD --}}
-            <div class="menu-section">
-
-                <a
-                    href="{{ route('dashboard') }}"
-                    class="menu-link {{ request()->routeIs('admin.dashboard', 'petugas.dashboard', 'warung.dashboard') ? 'active' : '' }}"
-                    @click="sidebarOpen = false"
-                >
-                    <span class="menu-icon">▣</span>
-                    <span>Dashboard</span>
-                </a>
-
-            </div>
-
-
-            {{-- KEBUTUHAN WARUNG --}}
-            @if(auth()->user()->isAdmin() || auth()->user()->isPetugas())
-
-                <div class="menu-section">
-
-                    <div class="menu-title">
-                        Kebutuhan Warung
+                <div class="brand-text">
+                    <div class="brand-title">
+                        Sembako App
                     </div>
 
-                    <a
-                        href="{{ route('orders.create') }}"
-                        class="menu-link {{ request()->routeIs('orders.create') ? 'active' : '' }}"
-                        @click="sidebarOpen = false"
-                    >
+                    <div class="brand-subtitle">
+                        Manajemen Kebutuhan Warung
+                    </div>
+                </div>
+
+            </div>
+
+
+            {{-- MENU --}}
+            <div class="sidebar-menu">
+
+                {{-- DASHBOARD --}}
+                <div class="menu-section">
+
+                    <a href="{{ route('dashboard') }}"
+                        class="menu-link {{ request()->routeIs('admin.dashboard', 'petugas.dashboard', 'warung.dashboard') ? 'active' : '' }}"
+                        @click="sidebarOpen = false">
                         <span class="menu-icon">▣</span>
-                        <span>Catat Kebutuhan</span>
-                    </a>
-
-                    <a
-                        href="{{ route('orders.index') }}"
-                        class="menu-link {{ request()->routeIs('orders.index', 'orders.show') ? 'active' : '' }}"
-                        @click="sidebarOpen = false"
-                    >
-                        <span class="menu-icon">☷</span>
-                        <span>Daftar Kebutuhan</span>
+                        <span>Dashboard</span>
                     </a>
 
                 </div>
 
-            @endif
+
+                {{-- KEBUTUHAN WARUNG --}}
+                @if (auth()->user()->isAdmin() || auth()->user()->isPetugas())
+                    <div class="menu-section">
+
+                        <div class="menu-title">
+                            Kebutuhan Warung
+                        </div>
+
+                        <a href="{{ route('orders.create') }}"
+                            class="menu-link {{ request()->routeIs('orders.create') ? 'active' : '' }}"
+                            @click="sidebarOpen = false">
+                            <span class="menu-icon">▣</span>
+                            <span>Catat Kebutuhan</span>
+                        </a>
+
+                        <a href="{{ route('orders.index') }}"
+                            class="menu-link {{ request()->routeIs('orders.index', 'orders.show') ? 'active' : '' }}"
+                            @click="sidebarOpen = false">
+                            <span class="menu-icon">☷</span>
+                            <span>Daftar Kebutuhan</span>
+                        </a>
+                        <a href="{{ route('orders.recap') }}"
+                            class="menu-link {{ request()->routeIs('orders.recap') ? 'active' : '' }}"
+                            @click="sidebarOpen = false">
+                            <span class="menu-icon">▦</span>
+                            <span>Rekap Kebutuhan</span>
+                        </a>
+
+                    </div>
+                @endif
 
 
-            {{-- DATA MASTER --}}
-            @if(auth()->user()->isAdmin())
+                {{-- DATA MASTER --}}
+                @if (auth()->user()->isAdmin() || auth()->user()->isPetugas())
+
+                    <div class="menu-section">
+
+                        <div class="menu-title">
+                            Data Master
+                        </div>
+
+
+                        {{-- ADMIN --}}
+                        @if (auth()->user()->isAdmin())
+                            <a href="{{ route('admin.warungs.index') }}"
+                                class="menu-link {{ request()->routeIs('admin.warungs.*') ? 'active' : '' }}"
+                                @click="sidebarOpen = false">
+                                <span class="menu-icon">🏪</span>
+                                <span>Data Warung</span>
+                            </a>
+                        @endif
+
+
+                        {{-- PETUGAS --}}
+                        @if (auth()->user()->isPetugas())
+                            <a href="{{ route('petugas.warungs.create') }}"
+                                class="menu-link {{ request()->routeIs('petugas.warungs.*') ? 'active' : '' }}"
+                                @click="sidebarOpen = false">
+                                <span class="menu-icon">＋</span>
+                                <span>Tambah Warung</span>
+                            </a>
+                        @endif
+
+
+                        {{-- ADMIN ONLY --}}
+                        @if (auth()->user()->isAdmin())
+                            {{-- <a href="#" class="menu-link menu-disabled">
+                                <span class="menu-icon">👤</span>
+                                <span>Data Petugas</span>
+                                <span class="menu-coming-soon">Soon</span>
+                            </a> --}}
+                            {{-- DATA PRODUK --}}
+                            <a href="{{ route('admin.products.index') }}"
+                                class="menu-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}"
+                                @click="sidebarOpen = false">
+                                <span class="menu-icon">📦</span>
+                                <span>Data Produk</span>
+                            </a>
+
+                            {{-- KATEGORI PRODUK --}}
+                            <a href="{{ route('admin.categories.index') }}"
+                                class="menu-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}"
+                                @click="sidebarOpen = false">
+                                <span class="menu-icon">▦</span>
+                                <span>Kategori Produk</span>
+                            </a>
+                        @endif
+
+                    </div>
+
+                @endif
+
 
                 <div class="menu-section">
+                    <div class="menu-title">Inventori</div>
 
-                    <div class="menu-title">
-                        Data Master
+                    <a href="{{ route('admin.stock-movements.index') }}"
+                        class="menu-link {{ request()->routeIs('admin.stock-movements.*') ? 'active' : '' }}"
+                        @click="sidebarOpen = false">
+                        <span class="menu-icon">📦</span>
+                        <span>Stok Produk</span>
+                    </a>
+                </div>
+
+            </div>
+
+
+            {{-- USER --}}
+            <div class="sidebar-user">
+
+                <div class="user-box">
+
+                    <div class="user-avatar">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                     </div>
 
-                    <a
-                        href="#"
-                        class="menu-link"
-                    >
-                        <span class="menu-icon">♜</span>
-                        <span>Data Warung</span>
-                    </a>
+                    <div class="user-info">
 
-                    <a
-                        href="#"
-                        class="menu-link"
-                    >
-                        <span class="menu-icon">▤</span>
-                        <span>Data Produk</span>
-                    </a>
+                        <div class="user-name">
+                            {{ auth()->user()->name }}
+                        </div>
 
-                    <a
-                        href="#"
-                        class="menu-link"
-                    >
-                        <span class="menu-icon">▦</span>
-                        <span>Kategori Produk</span>
-                    </a>
+                        <div class="user-role">
+                            {{ auth()->user()->role->value }}
+                        </div>
+
+                    </div>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+
+                        <button type="submit" class="logout-btn" title="Logout">
+                            ↪
+                        </button>
+
+                    </form>
 
                 </div>
 
-            @endif
+            </div>
 
-        </div>
+        </aside>
 
 
-        {{-- USER --}}
-        <div class="sidebar-user">
+        {{-- MAIN --}}
+        <main class="app-main">
 
-            <div class="user-box">
+            {{-- HEADER --}}
+            <header class="app-header">
 
-                <div class="user-avatar">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
 
-                <div class="user-info">
-
-                    <div class="user-name">
-                        {{ auth()->user()->name }}
-                    </div>
-
-                    <div class="user-role">
-                        {{ auth()->user()->role->value }}
-                    </div>
-
-                </div>
-
-                <form
-                    method="POST"
-                    action="{{ route('logout') }}"
-                >
-                    @csrf
-
-                    <button
-                        type="submit"
-                        class="logout-btn"
-                        title="Logout"
-                    >
-                        ↪
+                    <button type="button" class="mobile-menu-btn" @click="sidebarOpen = true">
+                        ☰
                     </button>
 
-                </form>
+                    <h1 class="page-title">
+                        @yield('page-title', 'Dashboard')
+                    </h1>
 
-            </div>
+                </div>
 
-        </div>
-
-    </aside>
-
-
-    {{-- MAIN --}}
-    <main class="app-main">
-
-        {{-- HEADER --}}
-        <header class="app-header">
-
-            <div style="display:flex; align-items:center; gap:12px;">
-
-                <button
-                    type="button"
-                    class="mobile-menu-btn"
-                    @click="sidebarOpen = true"
-                >
-                    ☰
-                </button>
-
-                <h1 class="page-title">
-                    @yield('page-title', 'Dashboard')
-                </h1>
-
-            </div>
-
-        </header>
+            </header>
 
 
-        {{-- CONTENT --}}
-        <div class="app-content">
+            {{-- CONTENT --}}
+            <div class="app-content">
 
-            {{-- SUCCESS --}}
-            @if(session('success'))
-                <div style="
+                {{-- SUCCESS --}}
+                @if (session('success'))
+                    <div
+                        style="
                     margin-bottom:16px;
                     padding:12px 16px;
                     background:#ecfdf5;
@@ -493,14 +507,15 @@
                     border-radius:8px;
                     font-size:13px;
                 ">
-                    {{ session('success') }}
-                </div>
-            @endif
+                        {{ session('success') }}
+                    </div>
+                @endif
 
 
-            {{-- ERROR --}}
-            @if($errors->any())
-                <div style="
+                {{-- ERROR --}}
+                @if ($errors->any())
+                    <div
+                        style="
                     margin-bottom:16px;
                     padding:12px 16px;
                     background:#fef2f2;
@@ -509,22 +524,23 @@
                     border-radius:8px;
                     font-size:13px;
                 ">
-                    <ul style="margin:0; padding-left:18px;">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+                        <ul style="margin:0; padding-left:18px;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
 
-            {{ $slot }}
+                {{ $slot }}
 
-        </div>
+            </div>
 
-    </main>
+        </main>
 
-</div>
+    </div>
 
 </body>
+
 </html>
